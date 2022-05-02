@@ -45,7 +45,7 @@ public class MainApplicationFrame extends JFrame {
                 int reply = JOptionPane.showConfirmDialog(null,
                         "Really Quit?", "Quit", JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION)
-                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    System.exit(0);
             }
         });
     }
