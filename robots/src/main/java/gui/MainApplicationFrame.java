@@ -1,6 +1,6 @@
-package gui;
+package main.java.gui;
 
-import log.Logger;
+import main.java.log.Logger;
 
 import javax.swing.*;
 import java.awt.*;
