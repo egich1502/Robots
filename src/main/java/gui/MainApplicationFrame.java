@@ -48,7 +48,7 @@ public class MainApplicationFrame extends JFrame implements StateSaver {
                 int reply = JOptionPane.showConfirmDialog(null,
                         "Really Quit?", "Quit", JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION) {
-                    Map<String, String>[] maps = new Map<>[2];
+                    Map<String, String>[] maps = new Map[2];
                     maps[0] = CreateSaveState(logWindow);
                     maps[1] = CreateSaveState(gameWindow);
                     CreateSaveFile(maps);
