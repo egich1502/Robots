@@ -8,9 +8,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import gui.WindowStateController.*;
 
 /**
  * Что требуется сделать:
@@ -31,6 +33,11 @@ public class MainApplicationFrame extends JFrame implements StateSaver {
 
         setContentPane(desktopPane);
 
+        File jsonStatesFile = new File("windowStates.json");
+        HashMap<String, HashMap> states = new HashMap<>();
+        if (jsonStatesFile.exists() && !jsonStatesFile.isDirectory()) {
+            states = WindowStateController.restoreState(jsonStatesFile);
+        }
 
         LogWindow logWindow = createLogWindow();
         addWindow(logWindow);
@@ -39,6 +46,18 @@ public class MainApplicationFrame extends JFrame implements StateSaver {
         gameWindow.setSize(400, 400);
         addWindow(gameWindow);
 
+        ArrayList<JInternalFrame> windows = new ArrayList<>();
+        windows.add(logWindow);
+        windows.add(gameWindow);
+
+        if (states != null){
+            for(JInternalFrame frame: windows){
+                if (states.containsKey(frame.getTitle())){
+                    HashMap currentWindowState = states.get(frame.getTitle());
+                    WindowStateController.resetState(frame, currentWindowState);
+                }
+            }
+        }
         setJMenuBar(generateMenuBar());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
@@ -48,10 +67,7 @@ public class MainApplicationFrame extends JFrame implements StateSaver {
                 int reply = JOptionPane.showConfirmDialog(null,
                         "Really Quit?", "Quit", JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION) {
-                    Map<String, String>[] maps = new Map[2];
-                    maps[0] = CreateSaveState(logWindow);
-                    maps[1] = CreateSaveState(gameWindow);
-                    CreateSaveFile(maps);
+                    WindowStateController.saveState(WindowStateController.getState(windows));
                     System.exit(0);
                 }
             }
@@ -145,20 +161,18 @@ public class MainApplicationFrame extends JFrame implements StateSaver {
             UIManager.setLookAndFeel(className);
             SwingUtilities.updateComponentTreeUI(this);
         } catch (ClassNotFoundException | InstantiationException
-                | IllegalAccessException | UnsupportedLookAndFeelException e) {
+                 | IllegalAccessException | UnsupportedLookAndFeelException e) {
             // just ignore
         }
     }
 
     @Override
     public Map<String, String> CreateSaveState(JInternalFrame frame) {
-        Dimension size = frame.getSize();
-        Point location = frame.getLocation();
         Map<String, String> map = new HashMap<>();
-        map.put("width", String.valueOf(size.getWidth()));
-        map.put("height", String.valueOf(size.getHeight()));
-        map.put("location.x", String.valueOf(location.getX()));
-        map.put("location.y", String.valueOf(location.getY()));
+        map.put(".width", String.valueOf(frame.getWidth()));
+        map.put(".height", String.valueOf(frame.getHeight()));
+        map.put(".location.x", String.valueOf(frame.getX()));
+        map.put(".location.y", String.valueOf(frame.getY()));
         return map;
     }
 
@@ -168,18 +182,18 @@ public class MainApplicationFrame extends JFrame implements StateSaver {
         try {
             FileReader fileReader = new FileReader("save.txt");
             Scanner scanner = new Scanner(fileReader);
-            while (scanner.hasNext()){
+            while (scanner.hasNext()) {
                 String[] abc = scanner.nextLine().split(" ");
                 map.put(abc[0], abc[1]);
             }
-        } catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         return map;
     }
 
     @Override
-    public void CreateSaveFile(Map<String, String>[] maps)  {
+    public void CreateSaveFile(Map<String, String>[] maps) {
         try {
             File file = new File("save.txt");
             FileWriter fileWriter = new FileWriter("save.txt");

@@ -1,8 +1,8 @@
-location.y 129.0
-width 269.0
-location.x 102.0
-height 538.0
-location.y 170.0
-width 392.0
-location.x 557.0
-height 482.0
+Протокол работы.location.x 170
+Протокол работы.location.y 477
+Протокол работы.width 212
+Протокол работы.height 525
+Игровое поле.height 400
+Игровое поле.location.x 1594
+Игровое поле.width 400
+Игровое поле.location.y 282
