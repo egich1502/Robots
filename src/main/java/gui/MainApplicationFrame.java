@@ -12,14 +12,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import gui.WindowStateController.*;
 
 /**
  * Что требуется сделать:
  * 1. Метод создания меню перегружен функционалом и трудно читается.
  * Следует разделить его на серию более простых методов (или вообще выделить отдельный класс).
  */
-public class MainApplicationFrame extends JFrame implements StateSaver {
+public class MainApplicationFrame extends JFrame {
     private final JDesktopPane desktopPane = new JDesktopPane();
 
     public MainApplicationFrame() {
@@ -33,7 +32,7 @@ public class MainApplicationFrame extends JFrame implements StateSaver {
 
         setContentPane(desktopPane);
 
-        File jsonStatesFile = new File("windowStates.json");
+        File jsonStatesFile = new File("save.json");
         HashMap<String, HashMap> states = new HashMap<>();
         if (jsonStatesFile.exists() && !jsonStatesFile.isDirectory()) {
             states = WindowStateController.restoreState(jsonStatesFile);
@@ -50,7 +49,7 @@ public class MainApplicationFrame extends JFrame implements StateSaver {
         windows.add(logWindow);
         windows.add(gameWindow);
 
-        if (states != null){
+        if (!states.isEmpty()){
             for(JInternalFrame frame: windows){
                 if (states.containsKey(frame.getTitle())){
                     HashMap currentWindowState = states.get(frame.getTitle());
@@ -163,46 +162,6 @@ public class MainApplicationFrame extends JFrame implements StateSaver {
         } catch (ClassNotFoundException | InstantiationException
                  | IllegalAccessException | UnsupportedLookAndFeelException e) {
             // just ignore
-        }
-    }
-
-    @Override
-    public Map<String, String> CreateSaveState(JInternalFrame frame) {
-        Map<String, String> map = new HashMap<>();
-        map.put(".width", String.valueOf(frame.getWidth()));
-        map.put(".height", String.valueOf(frame.getHeight()));
-        map.put(".location.x", String.valueOf(frame.getX()));
-        map.put(".location.y", String.valueOf(frame.getY()));
-        return map;
-    }
-
-    @Override
-    public Map<String, String> RestoreStateFromFile() {
-        Map<String, String> map = new HashMap<>();
-        try {
-            FileReader fileReader = new FileReader("save.txt");
-            Scanner scanner = new Scanner(fileReader);
-            while (scanner.hasNext()) {
-                String[] abc = scanner.nextLine().split(" ");
-                map.put(abc[0], abc[1]);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return map;
-    }
-
-    @Override
-    public void CreateSaveFile(Map<String, String>[] maps) {
-        try {
-            File file = new File("save.txt");
-            FileWriter fileWriter = new FileWriter("save.txt");
-            for (Map<String, String> map : maps)
-                for (Map.Entry<String, String> entry : map.entrySet())
-                    fileWriter.write(entry.getKey() + " " + entry.getValue() + "\n");
-            fileWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }

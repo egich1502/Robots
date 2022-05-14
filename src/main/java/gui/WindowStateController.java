@@ -54,8 +54,8 @@ public class WindowStateController {
     }
 
     static void resetState(JInternalFrame frame, HashMap currentState) {
-        frame.setLocation((int) currentState.get("x"), (int) currentState.get("y"));
-        frame.setSize((int) currentState.get("width"), (int) currentState.get("height"));
+        frame.setLocation((int)(long) currentState.get("x"), (int)(long) currentState.get("y"));
+        frame.setSize((int)(long) currentState.get("width"), (int)(long) currentState.get("height"));
         try {
             frame.setMaximum((boolean) currentState.get("isMaximized"));
             frame.setIcon((boolean) currentState.get("isIcon"));
