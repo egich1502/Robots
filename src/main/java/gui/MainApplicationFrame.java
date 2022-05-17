@@ -7,11 +7,8 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.List;
 
 /**
  * Что требуется сделать:
@@ -32,12 +29,6 @@ public class MainApplicationFrame extends JFrame {
 
         setContentPane(desktopPane);
 
-        File jsonStatesFile = new File("save.json");
-        HashMap<String, HashMap> states = new HashMap<>();
-        if (jsonStatesFile.exists() && !jsonStatesFile.isDirectory()) {
-            states = WindowStateController.restoreState(jsonStatesFile);
-        }
-
         LogWindow logWindow = createLogWindow();
         addWindow(logWindow);
 
@@ -45,18 +36,12 @@ public class MainApplicationFrame extends JFrame {
         gameWindow.setSize(400, 400);
         addWindow(gameWindow);
 
-        ArrayList<JInternalFrame> windows = new ArrayList<>();
+        List<JInternalFrame> windows = new ArrayList<>();
         windows.add(logWindow);
         windows.add(gameWindow);
 
-        if (!states.isEmpty()){
-            for(JInternalFrame frame: windows){
-                if (states.containsKey(frame.getTitle())){
-                    HashMap currentWindowState = states.get(frame.getTitle());
-                    WindowStateController.resetState(frame, currentWindowState);
-                }
-            }
-        }
+        WindowStateController.resetState(windows);
+
         setJMenuBar(generateMenuBar());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
@@ -66,7 +51,7 @@ public class MainApplicationFrame extends JFrame {
                 int reply = JOptionPane.showConfirmDialog(null,
                         "Really Quit?", "Quit", JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION) {
-                    WindowStateController.saveState(WindowStateController.getState(windows));
+                    WindowStateController.saveStates(windows);
                     System.exit(0);
                 }
             }

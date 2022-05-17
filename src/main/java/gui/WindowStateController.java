@@ -1,6 +1,6 @@
 package gui;
 
-import org.json.simple.*;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -10,14 +10,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class WindowStateController {
-
-    static HashMap<String, HashMap> getState(ArrayList<JInternalFrame> frames) {
-        HashMap<String, HashMap> frameInfo = new HashMap<>();
+    static void saveStates(List<JInternalFrame> frames) {
+        Map<String, Map<String, Object>> frameInfo = new HashMap<>();
         for (JInternalFrame frame : frames) {
             HashMap<String, Object> frameStateInfo = new HashMap<>();
             frameStateInfo.put("width", frame.getWidth());
@@ -28,39 +28,50 @@ public class WindowStateController {
             frameStateInfo.put("isIcon", frame.isIcon());
             frameInfo.put(frame.getTitle(), frameStateInfo);
         }
-        return frameInfo;
+        saveStateToFile(frameInfo);
     }
 
-    static void saveState(HashMap<String, HashMap> windowInfo) {
+    private static void saveStateToFile(Map<String, Map<String, Object>> windowInfo) {
         JSONObject json = new JSONObject(windowInfo);
-        try {
-            FileWriter fileWriter = new FileWriter("save.json");
+        try (FileWriter fileWriter = new FileWriter("save.json")) {
             json.writeJSONString(fileWriter);
-            fileWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    static HashMap<String, HashMap> restoreState(File json) {
+    private static Map<String, Map<String, Object>> restoreStateFromFile(File json) {
         JSONParser jsonParser = new JSONParser();
         try (FileReader fileReader = new FileReader(json)) {
             JSONObject jsonObject = (JSONObject) jsonParser.parse(fileReader);
-            return new HashMap<String, HashMap>(jsonObject);
+            return new HashMap<String, Map<String, Object>>(jsonObject);
         } catch (IOException | ParseException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    static void resetState(JInternalFrame frame, HashMap currentState) {
-        frame.setLocation((int)(long) currentState.get("x"), (int)(long) currentState.get("y"));
-        frame.setSize((int)(long) currentState.get("width"), (int)(long) currentState.get("height"));
-        try {
-            frame.setMaximum((boolean) currentState.get("isMaximized"));
-            frame.setIcon((boolean) currentState.get("isIcon"));
-        } catch (PropertyVetoException e) {
-            e.printStackTrace();
+    static void resetState(List<JInternalFrame> windows) {
+        File jsonStatesFile = new File("save.json");
+        Map<String, Map<String, Object>> states = new HashMap<>();
+        if (jsonStatesFile.exists() && !jsonStatesFile.isDirectory()) {
+            states = restoreStateFromFile(jsonStatesFile);
+        }
+
+        if (!states.isEmpty()) {
+            for (JInternalFrame frame : windows) {
+                if (states.containsKey(frame.getTitle())) {
+                    Map<String, Object> currentState = states.get(frame.getTitle());
+                    frame.setLocation((int) (long) currentState.get("x"), (int) (long) currentState.get("y"));
+                    frame.setSize((int) (long) currentState.get("width"), (int) (long) currentState.get("height"));
+                    try {
+                        frame.setMaximum((boolean) currentState.get("isMaximized"));
+                        frame.setIcon((boolean) currentState.get("isIcon"));
+                    } catch (PropertyVetoException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 }
