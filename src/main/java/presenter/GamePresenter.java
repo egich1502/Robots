@@ -29,6 +29,10 @@ public class GamePresenter {
         gameState.setRobotCommand(new RobotMovement(target));
     }
 
+    public GameState getGameState() {
+        return gameState;
+    }
+
     public Robot getRobotInfo(){
         return gameState.getRobot();
     }

@@ -32,6 +32,10 @@ public class GameVisualizer extends JPanel {
         setDoubleBuffered(true);
     }
 
+    public GamePresenter getPresenter() {
+        return presenter;
+    }
+
     protected void onRedrawEvent() {
         EventQueue.invokeLater(this::repaint);
     }

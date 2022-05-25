@@ -36,9 +36,14 @@ public class MainApplicationFrame extends JFrame {
         gameWindow.setSize(400, 400);
         addWindow(gameWindow);
 
+        RobotCoordinatesWindow coordinatesWindow = new RobotCoordinatesWindow(gameWindow.getVisualizer().getPresenter().getGameState());
+        coordinatesWindow.setSize(400, 400);
+        addWindow(coordinatesWindow);
+
         List<JInternalFrame> windows = new ArrayList<>();
         windows.add(logWindow);
         windows.add(gameWindow);
+        windows.add(coordinatesWindow);
 
         WindowStateController.resetState(windows);
 
