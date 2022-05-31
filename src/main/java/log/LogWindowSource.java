@@ -77,7 +77,9 @@ public class LogWindowSource
 
     public int size()
     {
-        return m_messages.size();
+        synchronized (m_messages) {
+            return m_messages.size();
+        }
     }
 
     public Iterable<LogEntry> range(int startFrom, int count)
@@ -88,14 +90,18 @@ public class LogWindowSource
         }
         int indexTo = Math.min(startFrom + count, m_messages.size());
         List<LogEntry> list = new ArrayList<>();
-        for (int i = startFrom; i < indexTo; i++){
-            list.add(m_messages.getValue(i));
+        synchronized (m_messages) {
+            for (int i = startFrom; i < indexTo; i++) {
+                list.add(m_messages.getValue(i));
+            }
         }
         return list;
     }
 
     public Iterable<LogEntry> all()
     {
-        return m_messages.values();
+        synchronized (m_messages){
+            return m_messages.values();
+        }
     }
 }

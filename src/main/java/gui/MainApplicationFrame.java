@@ -3,6 +3,8 @@ package gui;
 import log.Logger;
 
 import javax.swing.*;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -76,6 +78,17 @@ public class MainApplicationFrame extends JFrame {
     protected void addWindow(JInternalFrame frame) {
         desktopPane.add(frame);
         frame.setVisible(true);
+        frame.addInternalFrameListener(new InternalFrameAdapter(){
+            public void internalFrameClosing(InternalFrameEvent e){
+                if (frame.isClosed()){
+                    frame.setVisible(false);
+                    frame.removeInternalFrameListener(this);
+                    if (frame instanceof LogWindow)
+                        ((LogWindow)frame).freeMemory();
+                    frame.dispose();
+                }
+            }
+        });
     }
 
 //    protected JMenuBar createMenuBar() {
